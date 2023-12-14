@@ -1,0 +1,11 @@
+id_producto,titulo,categoria,precio,cantidad,medidas,peso,descripcion,id_proveedor
+1,RTX 3050 Asus Dual Fan,Placas De VIdeo,4000,10,NULL,NULL,NULL,2
+2,RTX 2060 SUPER Asus OC,Placas De VIdeo,3500,10,NULL,NULL,NULL,2
+3,GTX 1660 SUPER ROG OC,Placas De VIdeo,2000,10,NULL,NULL,NULL,2
+4,GTX 1660 SUPER ROG OC,Placas De VIdeo,2000,10,NULL,NULL,NULL,2
+5,Gabinete Aerocool 200X,Gabinetes,1500,10,NULL,NULL,NULL,1
+6,Gabinete ASUS AP2001,Gabinetes,1700,10,NULL,NULL,NULL,1
+7,Gabinete ASUS ROG GT3000,Gabinetes,2500,10,NULL,NULL,NULL,1
+8,Monitor Samsung 24p 75hz IPS,Monitores,2700,10,NULL,NULL,NULL,3
+9,Monitor Samsung 27p 144hz IPS,Monitores,3500,5,NULL,NULL,NULL,3
+10,Monitor ACER 27p 360hz TN,Monitores,4000,5,NULL,NULL,NULL,3

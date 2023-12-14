@@ -1,0 +1,11 @@
+id_pedido,articulos,monto,pago,promociones,estado,id_envio,id_cliente
+1,Iphone 13,1000,Credito,NULL,en proceso,1,2
+2,Samsung S23,999,transferencia,NULL,en proceso,2,6
+3,Iphone 15 PRO,1500,Debito,NULL,en proceso,3,4
+4,Monitor asus 24p 75hz,1499.5,transferencia,NULL,en proceso,4,8
+5,Extensor 24pines ATX,540,transferencia,NULL,en proceso,5,10
+6,Control remoto universal Samsung,899,transferencia,NULL,en proceso,6,3
+7,Extensor Wifi 6.0,2250.99,Debito,NULL,en proceso,7,5
+8,GeForce RTX 3060Ti Asus TUF,3050,transferencia,NULL,en proceso,8,7
+9,GeForce RTX 4090 Asus ROG,5000,Debito,NULL,en proceso,9,1
+10,Gabinete Gamer ID-COOLING 200X,1750.98,Credito,NULL,en proceso,10,9
