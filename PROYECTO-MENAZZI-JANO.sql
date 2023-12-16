@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS producto
     titulo VARCHAR(50) NOT NULL,
 	categoria VARCHAR(20) NOT NULL,
     precio DECIMAL(10,2) NOT NULL,
+    precio_final DECIMAL(10,2) NOT NULL,
     cantidad INT NOT NULL,
     medidas VARCHAR(20) DEFAULT "Sin asignar",
     peso VARCHAR(15) DEFAULT "Sin asignar",
@@ -138,6 +139,7 @@ USE curso_coderhouse;
 set SQL_SAFE_UPDATES = 0;
 
 
+
 ################################################################################################
 -- 5 vistas
 
@@ -150,6 +152,7 @@ WHERE A.documento = 12457865;
 
 SELECT * FROM VISTA1;
 
+
 ################################################################################################
 -- vista2, productos que tienen un precio mayor a 1600 con categoria de gabinete
 
@@ -160,6 +163,7 @@ WHERE categoria = "Gabinetes" AND precio > 1600;
 
 select * from VISTA2;
 
+
 ################################################################################################
 -- vista3, vista de los datos que se deberian mostrar en la pagina web a los clientes, (precio + 30%)
 
@@ -168,6 +172,7 @@ SELECT P.titulo, P.categoria, P.precio * 1.3 as PRECIO_FINAL
 FROM producto P order by precio;
 
 select * from curso_coderhouse.VISTA3;
+
 
 ################################################################################################
 -- vista4, una vista que recopile de la tabla pedidos los que sean de pago con debito, a su vez me muestre de la tabla cliente su nombre,apellido,documento
@@ -181,6 +186,7 @@ JOIN contacto_cliente CC ON P.id_cliente = CC.id_cliente
 WHERE P.Pago = 'Debito' order by Monto;
 
 select * from VISTA4; 
+ 
  
 ################################################################################################
 -- vista5 hacer una vista que me muestre al cliente, su contacto, y su pedido sabiendo que su pedido tiene definido el envio por la empresa andreani
@@ -260,6 +266,7 @@ DELIMITER ;
 
 CALL sp_ordenar_tabla('pedido', 'monto', 'ASC');
 
+
 ################################################################################################
 /* sp2  sp que inserte registros en la tabla cliente, este sp no tiene como parametro el id ya que este es auto_increment
 y se deberia asignar solo, a su vez tiene un IF para corroborar que el DNI del nuevo registro este ya registrado*/
@@ -294,8 +301,32 @@ CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 17308014);
 CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 99999999);
 
 
-##########################################################################################
-# NEW: Se utiliza en triggers BEFORE e AFTER para referenciar los nuevos valores que se insertarán o actualizarán.
-# OLD: Se utiliza en triggers BEFORE e AFTER para referenciar los valores existentes antes de la actualización o eliminación.
+################################################################################################
+/* sp  sp que le mandes como parametro el id del proveedor y te devuelva los productos asignados a el, asi como algunas columnas adicionales, antes corrobore si el numero enviado como parametro es correcto*/
 
+DROP PROCEDURE IF EXISTS sp_busqueda_proveedor;
+
+DELIMITER $$
+CREATE PROCEDURE sp_busqueda_proveedor(IN n_id_prov INT)
+BEGIN
+
+	DECLARE id_existente INT;
+    
+    SELECT COUNT(*) INTO id_existente FROM proveedor WHERE id_proveedor = n_id_prov;
+    
+	IF id_existente = 0 THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No hay ningun proveedor con el ID ingresado';
+	ELSE
+		SELECT A.id_proveedor, A.nombre, A.apellido, A.documento, A.categoria, P.id_producto, P.titulo, P.precio, P.precio_final, P.cantidad 
+        FROM proveedor A
+        JOIN producto P ON (P.id_proveedor = A.id_proveedor) 
+        WHERE A.id_proveedor = n_id_prov;
+	END IF;
+
+END$$
+
+DELIMITER ;
+
+CALL sp_busqueda_proveedor(2); 
+CALL sp_busqueda_proveedor(5);  #No hay proveedor con id°5
 
