@@ -143,7 +143,9 @@ set SQL_SAFE_UPDATES = 0;
 ################################################################################################
 -- 5 vistas
 
--- vista1, productos que tienen como proveedor al id1
+-- vista1, productos que tienen como proveedor al id_proveedor = 1 
+-- o su numero de documento "12457865"
+
 CREATE OR REPLACE VIEW VISTA1 AS
 SELECT P.id_producto, P.titulo, P.categoria, P.precio, A.nombre, A.id_proveedor 
 FROM PRODUCTO P 
@@ -165,7 +167,8 @@ select * from VISTA2;
 
 
 ################################################################################################
--- vista3, vista de los datos que se deberian mostrar en la pagina web a los clientes, (precio + 30%)
+-- vista3, vista de los datos que se deberian mostrar en la pagina web a los clientes
+-- (precio + 30%)
 
 CREATE OR REPLACE VIEW VISTA3 AS
 SELECT P.titulo, P.categoria, P.precio * 1.3 as PRECIO_FINAL
@@ -175,7 +178,8 @@ select * from curso_coderhouse.VISTA3;
 
 
 ################################################################################################
--- vista4, una vista que recopile de la tabla pedidos los que sean de pago con debito, a su vez me muestre de la tabla cliente su nombre,apellido,documento
+-- vista4, una vista que recopile de la tabla pedidos los que sean de pago con debito
+-- a su vez me muestre de la tabla cliente su nombre, apellido, documento
 -- y de la tabla contacto_cliente sus contactos
 
 CREATE OR REPLACE VIEW VISTA4 AS
@@ -189,7 +193,8 @@ select * from VISTA4;
  
  
 ################################################################################################
--- vista5 hacer una vista que me muestre al cliente, su contacto, y su pedido sabiendo que su pedido tiene definido el envio por la empresa andreani
+-- vista5 hacer una vista que me muestre al cliente, su contacto, y su pedido 
+-- sabiendo que su pedido tiene definido el envio por la empresa andreani
 -- supuesto caso de que se atrasen los envios y haya que avisar a los clientes
 
 CREATE OR REPLACE VIEW VISTA5 AS
@@ -207,25 +212,30 @@ select * from VISTA5;
 ################################################################################################
 -- 2 funciones
 
--- funcion1, una funcion que le de como parametro un monto de un pedido y me devuelva su monto con promociones
+-- funcion1, esta destinada a la tabla producto, manipula el monto de estos, 
+-- una funcion que le de como parametro un monto de un pedido/articulo 
+-- y me devuelva su monto final con promociones/descuentos
+
 
 DELIMITER $$
-CREATE FUNCTION f_promociones(monto DECIMAL(10,2), promociones INT) RETURNS DECIMAL(10,2) READS SQL DATA
+CREATE FUNCTION f_descuento(monto DECIMAL(10,2), descuento INT) RETURNS DECIMAL(10,2) READS SQL DATA
 BEGIN
 
 	DECLARE resultado DECIMAL(10,2);
-    SET resultado = monto - (monto * (promociones/100));
+    SET resultado = monto - (monto * (descuento/100));
 	
 
 	RETURN resultado;
 END$$
 DELIMITER ;
 
-SELECT f_promociones(5000,25) AS Preio_final;
+SELECT f_descuento(5000,25) AS Preio_final;
 
 
 ################################################################################################
--- funcion2, una funcion para calcular el precio total de un producto dado su precio unitario y la cantidad a comprar, en este caso 5 
+-- funcion2, una funcion para calcular el precio total de un producto 
+-- dado su precio unitario y la cantidad a comprar, devuelve el precio final de esa cantidad unitaria
+-- multiplicada por la cantidad
 
 DELIMITER $$
 CREATE FUNCTION f_precio_final(precio_unitario DECIMAL(10,2), cantidad INT) RETURNS DECIMAL(10,2) READS SQL DATA
@@ -244,9 +254,9 @@ WHERE titulo like '%Gabinete%';
 
 
 ################################################################################################
-/* sp1, este lo hicimos tal cual en clase, no hay mucho que comentar, estaba bastante automatizado para poder 
+/* sp1, este lo hicimos tal cual en clase, estaba bastante automatizado para poder 
 hacer el proceso para cualquier tabla, se le puede sumar la seguridad de los IF de corroborar que los registros ingresados
-esten en las tablas, y que a la vez sea valido el orden pero no lo pedia como requisito*/
+esten en las tablas, y que a la vez sea valido el orden */
 
 drop procedure if exists sp_ordenar_tabla;
 
@@ -288,8 +298,10 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El documento ingresado ya esta asignado a otro cliente';
 	END IF;
 
-	/* este procedimiento guarda en "documento_existente" el conteo del total de los documentos encontrados iguales al ingresado como parametro en "n_documento"
-    si hay algun documento igual al que se ingreso como parametro, "documento_existente" se carga con esa cantidad, que deberia ser 1 maximo ya que documento es UNIQUE
+	/* este procedimiento guarda en "documento_existente" el conteo del total de los documentos 
+    encontrados iguales al ingresado como parametro en "n_documento"
+    si hay algun documento igual al que se ingreso como parametro, "documento_existente" se carga con esa cantidad 
+    que deberia ser 1 maximo ya que documento es UNIQUE
     si es asi, salta error asignado, sino sigue la carga del nuevo registro con ese documento, ya que es valido. */
 	 
 END$$
