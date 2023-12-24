@@ -283,10 +283,12 @@ y se deberia asignar solo, a su vez tiene un IF para corroborar que el DNI del n
 
 DROP PROCEDURE IF EXISTS sp_insertar_registro_cliente;
 
+START TRANSACTION;
+
 DELIMITER $$
 CREATE PROCEDURE sp_insertar_registro_cliente(IN n_nombre VARCHAR(30), IN n_apellido VARCHAR(30), IN n_documento VARCHAR(14))
 BEGIN
-
+    
 	DECLARE documento_existente INT;
 	
     SELECT COUNT(*) INTO documento_existente FROM cliente WHERE documento = n_documento;
@@ -308,9 +310,15 @@ END$$
 
 DELIMITER ;
 
+SAVEPOINT savepoint_sp_cliente;
+
 -- el primer registro de la tabla cliente tiene como numero de documento 17308014
 CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 17308014);
 CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 99999999);
+
+ROLLBACK TO savepoint_sp_cliente; 
+
+COMMIT;
 
 
 ################################################################################################
@@ -318,11 +326,13 @@ CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 99999999);
 
 DROP PROCEDURE IF EXISTS sp_busqueda_proveedor;
 
+START TRANSACTION;
+
 DELIMITER $$
 CREATE PROCEDURE sp_busqueda_proveedor(IN n_id_prov INT)
 BEGIN
-
-	DECLARE id_existente INT;
+    
+    DECLARE id_existente INT;
     
     SELECT COUNT(*) INTO id_existente FROM proveedor WHERE id_proveedor = n_id_prov;
     
@@ -342,3 +352,36 @@ DELIMITER ;
 CALL sp_busqueda_proveedor(2); 
 CALL sp_busqueda_proveedor(5);  #No hay proveedor con id°5
 
+
+################################################################################################
+DROP PROCEDURE IF EXISTS sp_insertar_registro_producto;
+
+START TRANSACTION;
+
+DELIMITER $$
+CREATE PROCEDURE sp_insertar_registro_producto(IN n_titulo VARCHAR(50), IN n_categoria VARCHAR(20), IN n_precio DECIMAL(10,2), IN n_precio_final DECIMAL(10,2), IN n_cantidad INT, IN n_id_proveedor INT)
+BEGIN
+    
+    DECLARE proveedor_inexistente INT;
+    
+    SELECT COUNT(*) INTO proveedor_inexistente FROM proveedor WHERE id_proveedor = n_id_proveedor;
+    
+    IF proveedor_inexistente = 0 THEN
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El proveedor ingresado no existe';
+    ELSE
+		INSERT INTO producto
+			(id_producto, titulo, categoria, precio, precio_final, cantidad, id_proveedor) VALUES 
+				(default, n_titulo, n_categoria, n_precio, n_precio_final, n_cantidad, n_id_proveedor);
+	END IF;
+    
+END$$
+
+DELIMITER ;
+
+SAVEPOINT savepoint_sp_producto;
+
+CALL sp_insertar_registro_producto('RTX 2060 SUPER 6GB 0C ASUS', 'Placas de Video', 3999.99, (3999.99 * 1.35), 10, 2);
+
+ROLLBACK TO savepoint_sp_producto; 
+
+COMMIT;
