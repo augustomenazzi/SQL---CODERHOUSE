@@ -1,3 +1,19 @@
+/*
+TABLAS INCLUIDAS EN ESTE BACKUP: 
+1. cliente
+2. auditoria_cliente
+3. contacto_cliente
+4. auditoria_c_cliente
+5. direccion
+6. envio
+7. pedido
+8. proveedor
+9. contacto_proveedor
+10. producto
+11. auditoria_producto
+12. hechos_ventas
+*/
+
 CREATE DATABASE  IF NOT EXISTS `curso_coderhouse` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `curso_coderhouse`;
 -- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
@@ -857,4 +873,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-02 21:05:41
+-- Dump completed on 2024-01-02 21:53:13
