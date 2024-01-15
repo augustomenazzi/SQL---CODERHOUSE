@@ -1,0 +1,11 @@
+id_envio,forma,empresa,id_cliente
+1,retiro,NULL,3
+2,envio,andreani,10
+3,envio,andreani,1
+4,retiro,NULL,7
+5,retiro,NULL,2
+6,envio,andreani,9
+7,envio,andreani,4
+8,envio,andreani,5
+9,envio,andreani,6
+10,envio,andreani,8

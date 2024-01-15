@@ -1,0 +1,15 @@
+id_contacto,telefono1,telefono2,email,id_cliente,id_empleado,id_proveedor
+1,503-524-5248,610-411-9865,eswires0@instagram.com,1,NULL,NULL
+2,845-732-0455,194-915-8746,aposner1@intel.com,2,NULL,NULL
+3,659-913-5816,812-225-5233,hcraddy2@springer.com,3,NULL,NULL
+4,419-810-2867,353-728-6559,bkearney3@nasa.gov,4,NULL,NULL
+5,647-604-4998,155-525-4599,areidshaw4@techcrunch.com,5,NULL,NULL
+6,484-250-7709,385-785-5121,tcolcomb5@mit.edu,6,NULL,NULL
+7,822-344-6425,834-461-8467,twarcup6@ocn.ne.jp,7,NULL,NULL
+8,801-478-3762,685-536-4217,dgiacobillo7@sciencedaily.com,8,NULL,NULL
+9,636-158-9111,732-396-3097,oeschalotte8@bigcartel.com,9,NULL,NULL
+10,432-755-3725,999-448-9979,gjertz9@cbslocal.com,10,NULL,NULL
+11,191-809-8815,231-221-5156,ralben0@hao123.com,NULL,NULL,1
+12,691-293-0881,369-176-2734,ksheasby1@freewebs.com,NULL,NULL,2
+13,231-541-5155,791-713-8176,mgrigor2@tiny.cc,NULL,NULL,3
+14,191-410-0239,575-728-9317,lmessiter3@usa.gov,NULL,NULL,4

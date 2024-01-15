@@ -1,0 +1,4 @@
+id_empleado,nombre,apellido,documento,sueldo,cuit,cumpleanos,ingreso,egreso
+1,Maria,Martinez,35126487,175000,20351264877,2000-05-14,2021-03-01,NULL
+2,Juan,Perez,37451268,200000.50,15374512686,1995-07-25,2021-03-01,NULL
+3,Martin,Gallego,30457816,350000,20304578166,1990-03-07,2021-03-01,NULL

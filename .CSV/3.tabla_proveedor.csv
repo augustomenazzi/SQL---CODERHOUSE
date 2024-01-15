@@ -1,0 +1,5 @@
+id_proveedor,nombre,apellido,documento,categoria,pedido
+1,Carlos,Gonzalez,12457865,Gabinetes,NULL
+2,Juan,Del Valle,35479512,Hardware,NULL
+3,Ernesto,Martin,25469832,Hardware,NULL
+4,Claudia,Gimenez,35469874,Hardware,NULL

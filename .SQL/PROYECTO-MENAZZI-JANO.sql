@@ -1,5 +1,6 @@
 -- comienzo bd codehrouse AUGUSTO MENAZZI
 -- drop SCHEMA curso_coderhouse;
+
 create SCHEMA curso_coderhouse;
 use curso_coderhouse;
 
@@ -15,16 +16,53 @@ CREATE TABLE IF NOT EXISTS cliente
     
 );
 
-CREATE TABLE IF NOT EXISTS contacto_cliente
+CREATE TABLE IF NOT EXISTS empleado
 (
-	id_contacto_cliente INT NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (id_contacto_cliente),
+	id_empleado INT NOT NULL AUTO_INCREMENT, 
+	PRIMARY KEY (id_empleado),
+    nombre VARCHAR(30) NOT NULL,
+    apellido VARCHAR(30) NOT NULL,
+    documento VARCHAR(14) NOT NULL UNIQUE,
+    sueldo DECIMAL(10,2),
+    CUIT VARCHAR(15) NOT NULL,
+    cumpleanos DATE NOT NULL,
+    ingreso DATE NOT NULL,
+    egreso DATE,
+    INDEX idx_dni(documento),
+    INDEX nombre (nombre, apellido)
+    
+);
+
+CREATE TABLE IF NOT EXISTS proveedor
+(
+	id_proveedor INT NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (id_proveedor),
+    nombre VARCHAR(30) NOT NULL,
+    apellido VARCHAR(30) NOT NULL,
+    documento VARCHAR(14) NOT NULL UNIQUE,
+    INDEX idx_dni(documento),
+    categoria VARCHAR(20) NOT NULL,
+    pedido VARCHAR(100),
+    INDEX nombre (nombre, apellido)
+
+);
+
+CREATE TABLE IF NOT EXISTS contacto
+(
+	id_contacto INT NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (id_contacto),
     telefono1 VARCHAR(20) NOT NULL,
     telefono2 VARCHAR(20) DEFAULT "Sin asignar",
     email VARCHAR(120) NOT NULL,
     CONSTRAINT uni_email UNIQUE (email),
     id_cliente INT,
     CONSTRAINT fk_contacto_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente) 
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+    id_empleado INT,
+    CONSTRAINT fk_contacto_empleado FOREIGN KEY (id_empleado) REFERENCES empleado(id_empleado) 
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+	id_proveedor INT,
+    CONSTRAINT fk_contacto_proveedor FOREIGN KEY (id_proveedor) REFERENCES proveedor(id_proveedor) 
     ON DELETE RESTRICT ON UPDATE CASCADE
     
 );  
@@ -40,6 +78,9 @@ CREATE TABLE IF NOT EXISTS direccion
 	codigo_postal NUMERIC(4,0) NOT NULL,
     id_cliente INT,
     CONSTRAINT fk_direccion_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente) 
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+    id_empleado INT,
+    CONSTRAINT fk_direccion_empleado FOREIGN KEY (id_empleado) REFERENCES empleado(id_empleado) 
     ON DELETE RESTRICT ON UPDATE CASCADE
 
 );  
@@ -70,34 +111,6 @@ CREATE TABLE IF NOT EXISTS pedido
     CONSTRAINT fk_pedido_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente) 
     ON DELETE RESTRICT ON UPDATE CASCADE,
 	FOREIGN KEY (id_envio) REFERENCES envio(id_envio) 
-    ON DELETE RESTRICT ON UPDATE CASCADE
-
-);
-
-CREATE TABLE IF NOT EXISTS proveedor
-(
-	id_proveedor INT NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (id_proveedor),
-    nombre VARCHAR(30) NOT NULL,
-    apellido VARCHAR(30) NOT NULL,
-    documento VARCHAR(14) NOT NULL UNIQUE,
-    INDEX idx_dni(documento),
-    categoria VARCHAR(20) NOT NULL,
-    pedido VARCHAR(100),
-    INDEX nombre (nombre, apellido)
-
-);
-
-CREATE TABLE IF NOT EXISTS contacto_proveedor
-(
-	id_contacto_proveedor INT NOT NULL AUTO_INCREMENT,
-    PRIMARY KEY (id_contacto_proveedor),
-	telefono1 VARCHAR(20) NOT NULL,
-    telefono2 VARCHAR(20) DEFAULT "Sin asignar",
-    email VARCHAR(120) NOT NULL,
-    CONSTRAINT uni_email UNIQUE (email),
-    id_proveedor INT,
-    CONSTRAINT fk_contacto_proveedor FOREIGN KEY (id_proveedor) REFERENCES proveedor(id_proveedor) 
     ON DELETE RESTRICT ON UPDATE CASCADE
 
 );
@@ -134,6 +147,7 @@ CREATE TABLE IF NOT EXISTS hechos_ventas
 
 );
 
+
 USE curso_coderhouse;
 
 set SQL_SAFE_UPDATES = 0;
@@ -143,9 +157,7 @@ set SQL_SAFE_UPDATES = 0;
 ################################################################################################
 -- 5 vistas
 
--- vista1, productos que tienen como proveedor al id_proveedor = 1 
--- o su numero de documento "12457865"
-
+-- vista1, productos que tienen como proveedor al id1
 CREATE OR REPLACE VIEW VISTA1 AS
 SELECT P.id_producto, P.titulo, P.categoria, P.precio, A.nombre, A.id_proveedor 
 FROM PRODUCTO P 
@@ -167,8 +179,7 @@ select * from VISTA2;
 
 
 ################################################################################################
--- vista3, vista de los datos que se deberian mostrar en la pagina web a los clientes
--- (precio + 30%)
+-- vista3, vista de los datos que se deberian mostrar en la pagina web a los clientes, (precio + 30%)
 
 CREATE OR REPLACE VIEW VISTA3 AS
 SELECT P.titulo, P.categoria, P.precio * 1.3 as PRECIO_FINAL
@@ -178,30 +189,28 @@ select * from curso_coderhouse.VISTA3;
 
 
 ################################################################################################
--- vista4, una vista que recopile de la tabla pedidos los que sean de pago con debito
--- a su vez me muestre de la tabla cliente su nombre, apellido, documento
--- y de la tabla contacto_cliente sus contactos
+-- vista4, una vista que recopile de la tabla pedidos los que sean de pago con debito, a su vez me muestre de la tabla cliente su nombre,apellido,documento
+-- y de la tabla contacto sus contactos
 
 CREATE OR REPLACE VIEW VISTA4 AS
 SELECT P.id_pedido, P.Articulos, P.Monto, P.Pago, C.nombre, C.apellido, C.documento, CC.telefono1, CC.telefono2, CC.email
 FROM pedido P
 JOIN cliente C ON P.id_cliente = C.id_cliente
-JOIN contacto_cliente CC ON P.id_cliente = CC.id_cliente
+JOIN contacto CC ON P.id_cliente = CC.id_cliente
 WHERE P.Pago = 'Debito' order by Monto;
 
 select * from VISTA4; 
  
  
 ################################################################################################
--- vista5 hacer una vista que me muestre al cliente, su contacto, y su pedido 
--- sabiendo que su pedido tiene definido el envio por la empresa andreani
+-- vista5 hacer una vista que me muestre al cliente, su contacto, y su pedido sabiendo que su pedido tiene definido el envio por la empresa andreani
 -- supuesto caso de que se atrasen los envios y haya que avisar a los clientes
 
 CREATE OR REPLACE VIEW VISTA5 AS
 SELECT C.nombre, C.apellido, C.documento, CC.telefono1, CC.telefono2, CC.email, P.id_pedido, P.Articulos, E.id_envio, E.empresa
 FROM cliente C
 JOIN pedido P ON P.id_cliente = C.id_cliente
-JOIN contacto_cliente CC ON P.id_cliente = CC.id_cliente
+JOIN contacto CC ON P.id_cliente = CC.id_cliente
 JOIN envio E ON E.id_envio = P.id_envio
 WHERE E.empresa = 'Andreani';
 
@@ -212,30 +221,25 @@ select * from VISTA5;
 ################################################################################################
 -- 2 funciones
 
--- funcion1, esta destinada a la tabla producto, manipula el monto de estos, 
--- una funcion que le de como parametro un monto de un pedido/articulo 
--- y me devuelva su monto final con promociones/descuentos
-
+-- funcion1, una funcion que le de como parametro un monto de un pedido y me devuelva su monto con promociones
 
 DELIMITER $$
-CREATE FUNCTION f_descuento(monto DECIMAL(10,2), descuento INT) RETURNS DECIMAL(10,2) READS SQL DATA
+CREATE FUNCTION f_promociones(monto DECIMAL(10,2), promociones INT) RETURNS DECIMAL(10,2) READS SQL DATA
 BEGIN
 
 	DECLARE resultado DECIMAL(10,2);
-    SET resultado = monto - (monto * (descuento/100));
+    SET resultado = monto - (monto * (promociones/100));
 	
 
 	RETURN resultado;
 END$$
 DELIMITER ;
 
-SELECT f_descuento(5000,25) AS Preio_final;
+SELECT f_promociones(5000,25) AS Preio_final;
 
 
 ################################################################################################
--- funcion2, una funcion para calcular el precio total de un producto 
--- dado su precio unitario y la cantidad a comprar, devuelve el precio final de esa cantidad unitaria
--- multiplicada por la cantidad
+-- funcion2, una funcion para calcular el precio total de un producto dado su precio unitario y la cantidad a comprar, en este caso 5 
 
 DELIMITER $$
 CREATE FUNCTION f_precio_final(precio_unitario DECIMAL(10,2), cantidad INT) RETURNS DECIMAL(10,2) READS SQL DATA
@@ -254,11 +258,11 @@ WHERE titulo like '%Gabinete%';
 
 
 ################################################################################################
-/* sp1, este lo hicimos tal cual en clase, estaba bastante automatizado para poder 
+/* sp1, este lo hicimos tal cual en clase, no hay mucho que comentar, estaba bastante automatizado para poder 
 hacer el proceso para cualquier tabla, se le puede sumar la seguridad de los IF de corroborar que los registros ingresados
-esten en las tablas, y que a la vez sea valido el orden */
+esten en las tablas, y que a la vez sea valido el orden pero no lo pedia como requisito*/
 
-drop procedure if exists sp_ordenar_tabla;
+DROP PROCEDURE IF EXISTS sp_ordenar_tabla;
 
 DELIMITER $$
 CREATE PROCEDURE sp_ordenar_tabla(IN tabla VARCHAR(20), IN campo VARCHAR(30), in orden VARCHAR(4))
@@ -283,12 +287,10 @@ y se deberia asignar solo, a su vez tiene un IF para corroborar que el DNI del n
 
 DROP PROCEDURE IF EXISTS sp_insertar_registro_cliente;
 
-START TRANSACTION;
-
 DELIMITER $$
 CREATE PROCEDURE sp_insertar_registro_cliente(IN n_nombre VARCHAR(30), IN n_apellido VARCHAR(30), IN n_documento VARCHAR(14))
 BEGIN
-    
+
 	DECLARE documento_existente INT;
 	
     SELECT COUNT(*) INTO documento_existente FROM cliente WHERE documento = n_documento;
@@ -300,25 +302,17 @@ BEGIN
 		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El documento ingresado ya esta asignado a otro cliente';
 	END IF;
 
-	/* este procedimiento guarda en "documento_existente" el conteo del total de los documentos 
-    encontrados iguales al ingresado como parametro en "n_documento"
-    si hay algun documento igual al que se ingreso como parametro, "documento_existente" se carga con esa cantidad 
-    que deberia ser 1 maximo ya que documento es UNIQUE
+	/* este procedimiento guarda en "documento_existente" el conteo del total de los documentos encontrados iguales al ingresado como parametro en "n_documento"
+    si hay algun documento igual al que se ingreso como parametro, "documento_existente" se carga con esa cantidad, que deberia ser 1 maximo ya que documento es UNIQUE
     si es asi, salta error asignado, sino sigue la carga del nuevo registro con ese documento, ya que es valido. */
 	 
 END$$
 
 DELIMITER ;
 
-SAVEPOINT savepoint_sp_cliente;
-
 -- el primer registro de la tabla cliente tiene como numero de documento 17308014
-CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 17308014);
-CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 99999999);
-
-ROLLBACK TO savepoint_sp_cliente; 
-
-COMMIT;
+-- CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 17308014);
+-- CALL sp_insertar_registro_cliente('Carlos', 'Menazzi', 99999999);
 
 
 ################################################################################################
@@ -326,13 +320,11 @@ COMMIT;
 
 DROP PROCEDURE IF EXISTS sp_busqueda_proveedor;
 
-START TRANSACTION;
-
 DELIMITER $$
 CREATE PROCEDURE sp_busqueda_proveedor(IN n_id_prov INT)
 BEGIN
-    
-    DECLARE id_existente INT;
+
+	DECLARE id_existente INT;
     
     SELECT COUNT(*) INTO id_existente FROM proveedor WHERE id_proveedor = n_id_prov;
     
@@ -349,39 +341,6 @@ END$$
 
 DELIMITER ;
 
-CALL sp_busqueda_proveedor(2); 
-CALL sp_busqueda_proveedor(5);  #No hay proveedor con id°5
+-- CALL sp_busqueda_proveedor(2); 
+-- CALL sp_busqueda_proveedor(5);  #No hay proveedor con id°5
 
-
-################################################################################################
-DROP PROCEDURE IF EXISTS sp_insertar_registro_producto;
-
-START TRANSACTION;
-
-DELIMITER $$
-CREATE PROCEDURE sp_insertar_registro_producto(IN n_titulo VARCHAR(50), IN n_categoria VARCHAR(20), IN n_precio DECIMAL(10,2), IN n_precio_final DECIMAL(10,2), IN n_cantidad INT, IN n_id_proveedor INT)
-BEGIN
-    
-    DECLARE proveedor_inexistente INT;
-    
-    SELECT COUNT(*) INTO proveedor_inexistente FROM proveedor WHERE id_proveedor = n_id_proveedor;
-    
-    IF proveedor_inexistente = 0 THEN
-		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El proveedor ingresado no existe';
-    ELSE
-		INSERT INTO producto
-			(id_producto, titulo, categoria, precio, precio_final, cantidad, id_proveedor) VALUES 
-				(default, n_titulo, n_categoria, n_precio, n_precio_final, n_cantidad, n_id_proveedor);
-	END IF;
-    
-END$$
-
-DELIMITER ;
-
-SAVEPOINT savepoint_sp_producto;
-
-CALL sp_insertar_registro_producto('RTX 2060 SUPER 6GB 0C ASUS', 'Placas de Video', 3999.99, (3999.99 * 1.35), 10, 2);
-
-ROLLBACK TO savepoint_sp_producto; 
-
-COMMIT;
