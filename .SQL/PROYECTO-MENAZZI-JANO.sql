@@ -135,7 +135,8 @@ CREATE TABLE IF NOT EXISTS producto
 
 CREATE TABLE IF NOT EXISTS hechos_ventas
 (
-	id_cliente INT,
+	fecha DATETIME,
+    id_cliente INT,
     id_pedido INT,
     id_producto INT,
     CONSTRAINT fk_ventas_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente) 
